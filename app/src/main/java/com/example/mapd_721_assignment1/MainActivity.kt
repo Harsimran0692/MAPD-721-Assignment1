@@ -23,6 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +54,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Test() {
     val focusManager = LocalFocusManager.current
+    var studentId by remember { mutableStateOf("") }
+    var studentName by remember { mutableStateOf("") }
+    var courseName by remember { mutableStateOf("") }
+
+    fun loadButtonClicked(){
+        println("Load Button Clicked")
+    }
+    fun storeButtonClicked(){
+        println("Store Button Clicked")
+    }
+    fun resetButtonClicked(){
+        println("Reset Button Clicked")
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -98,122 +116,141 @@ fun Test() {
                 )
 
                 // Input fields with better padding and rounded corners
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Student Id") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    shape = MaterialTheme.shapes.medium, // Rounded corners
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Username") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Course Name") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                )
+                TextFields(
+                    studentId,
+                    onStudentIdChange = {studentId = it},
+                    studentName,
+                    onStudentNameChange = {studentName = it},
+                    courseName,
+                    onStudentCourseNameChange = {courseName = it}
+                );
 
                 // Action buttons with improved styling
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp) // Spacing between buttons
-                ) {
-                    ElevatedButton(
-                        onClick = {},
-                        modifier = Modifier.weight(1f), // Make buttons fill available space evenly
-                        shape = MaterialTheme.shapes.small, // Rounded corners
-                        colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-                            contentColor = Color.Black, // Set the text color here
-                            containerColor = Color(255, 208, 0)
-                        )
-                    ) {
-                        Text("Load", fontSize = 18.sp)
-                    }
-                    ElevatedButton(
-                        onClick = {},
-                        modifier = Modifier.weight(1f),
-                        shape = MaterialTheme.shapes.small,
-                        colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-                            contentColor = Color.White, // Set the text color here
-                            containerColor = Color(6, 64, 43)
-                        )
+                CustomButtons(loadButtonClicked = { loadButtonClicked() },
+                    storeButtonClicked = {storeButtonClicked()},
+                    resetButtonClicked = {resetButtonClicked()}
+                );
 
-                    ) {
-                        Text("Store", fontSize = 18.sp, color = Color.White)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                // Reset button with styling
-                ElevatedButton(
-                    onClick = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.small,
-                    colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-                        contentColor = Color.White, // Set the text color here
-                        containerColor = Color(190, 0, 0)
-                    )
-                ) {
-                    Text("Reset", fontSize = 18.sp, color = Color.White)
-                }
-                Spacer(modifier = Modifier.height(26.dp))
-
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .background(Color(216, 216, 255))
-                        .height(250.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentAlignment = Alignment.CenterStart,
-                ){
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .padding(16.dp), // Padding inside the column
-                        verticalArrangement = Arrangement.SpaceEvenly,
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        // Text items
-                        Text(
-                            text = "Id: ",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
-                        Text(
-                            text = "Username: ",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        Text(
-                            text = "Course Name: ",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                }
+                DisplayResult();
             }
         }
     )
+}
+
+@Composable
+fun TextFields(studentId: String, onStudentIdChange: (String) -> Unit, studentName: String, onStudentNameChange: (String) -> Unit, courseName: String, onStudentCourseNameChange: (String) -> Unit){
+    OutlinedTextField(
+        value = studentId,
+        onValueChange = onStudentIdChange,
+        label = { Text("Student Id") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        shape = MaterialTheme.shapes.medium, // Rounded corners
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    OutlinedTextField(
+        value = studentName,
+        onValueChange = onStudentNameChange,
+        label = { Text("Username") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        shape = MaterialTheme.shapes.medium,
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    OutlinedTextField(
+        value = courseName,
+        onValueChange = onStudentCourseNameChange,
+        label = { Text("Course Name") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        shape = MaterialTheme.shapes.medium,
+    )
+}
+
+@Composable
+fun CustomButtons(loadButtonClicked: () -> Unit, storeButtonClicked: () -> Unit, resetButtonClicked: () -> Unit){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp) // Spacing between buttons
+    ) {
+        ElevatedButton(
+            onClick = loadButtonClicked,
+            modifier = Modifier.weight(1f), // Make buttons fill available space evenly
+            shape = MaterialTheme.shapes.small, // Rounded corners
+            colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
+                contentColor = Color.Black, // Set the text color here
+                containerColor = Color(255, 208, 0)
+            )
+        ) {
+            Text("Load", fontSize = 18.sp)
+        }
+        ElevatedButton(
+            onClick = storeButtonClicked,
+            modifier = Modifier.weight(1f),
+            shape = MaterialTheme.shapes.small,
+            colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
+                contentColor = Color.White, // Set the text color here
+                containerColor = Color(6, 64, 43)
+            )
+
+        ) {
+            Text("Store", fontSize = 18.sp, color = Color.White)
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+    // Reset button with styling
+    ElevatedButton(
+        onClick = resetButtonClicked,
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
+            contentColor = Color.White, // Set the text color here
+            containerColor = Color(190, 0, 0)
+        )
+    ) {
+        Text("Reset", fontSize = 18.sp, color = Color.White)
+    }
+    Spacer(modifier = Modifier.height(26.dp))
+}
+
+@Composable
+fun DisplayResult(){
+    Box(
+        modifier = Modifier.fillMaxWidth()
+            .background(Color(216, 216, 255))
+            .height(200.dp)
+            .clip(MaterialTheme.shapes.medium),
+        contentAlignment = Alignment.CenterStart,
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp), // Padding inside the column
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.Start
+        ) {
+            // Text items
+            Text(
+                text = "Student Id: ",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Text(
+                text = "Username: ",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+        }
+    }
 }
