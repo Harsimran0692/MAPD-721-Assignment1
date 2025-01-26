@@ -1,6 +1,7 @@
 package com.example.mapd_721_assignment1
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,23 +53,55 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Preview(showBackground = true)
 @Composable
 fun Test() {
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+    val dataStore = DataStore(context)
     var studentId by remember { mutableStateOf("") }
-    var studentName by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
     var courseName by remember { mutableStateOf("") }
 
-    fun loadButtonClicked(){
-        println("Load Button Clicked")
+    var storedStudentId by remember { mutableStateOf("") }
+    var storedUserName by remember { mutableStateOf("") }
+    var storedCourseName by remember { mutableStateOf("") }
+
+    fun loadButtonClicked() {
+        kotlinx.coroutines.GlobalScope.launch {
+            dataStore.getData().collect { data ->
+                storedStudentId = data.first
+                storedUserName = data.second
+                storedCourseName = data.third
+            }
+            println(storedStudentId)
+        }
     }
-    fun storeButtonClicked(){
-        println("Store Button Clicked")
+
+    fun storeButtonClicked() {
+        // Save data to DataStore
+        if(studentId.isEmpty() || courseName.isEmpty() || userName.isEmpty()){
+            return Toast.makeText(context, "All fields are required", Toast.LENGTH_SHORT).show()
+        }
+        kotlinx.coroutines.GlobalScope.launch {
+            dataStore.saveData(studentId, userName, courseName)
+        }
+        Toast.makeText(context, "Data stored successfully!", Toast.LENGTH_SHORT).show()
     }
-    fun resetButtonClicked(){
-        println("Reset Button Clicked")
+
+    fun resetButtonClicked() {
+        // Clear fields and reset DataStore
+        kotlinx.coroutines.GlobalScope.launch {
+            dataStore.clearData()
+            studentId = ""
+            userName = ""
+            courseName = ""
+            storedStudentId = ""
+            storedUserName = ""
+            storedCourseName = ""
+        }
+        Toast.makeText(context, "Data Reset successfully!", Toast.LENGTH_SHORT).show()
     }
 
     Scaffold(
@@ -119,8 +155,8 @@ fun Test() {
                 TextFields(
                     studentId,
                     onStudentIdChange = {studentId = it},
-                    studentName,
-                    onStudentNameChange = {studentName = it},
+                    userName,
+                    onStudentNameChange = {userName = it},
                     courseName,
                     onStudentCourseNameChange = {courseName = it}
                 );
@@ -131,14 +167,20 @@ fun Test() {
                     resetButtonClicked = {resetButtonClicked()}
                 );
 
-                DisplayResult();
+                DisplayResult(storedStudentId, storedUserName, storedCourseName);
             }
         }
     )
 }
 
 @Composable
-fun TextFields(studentId: String, onStudentIdChange: (String) -> Unit, studentName: String, onStudentNameChange: (String) -> Unit, courseName: String, onStudentCourseNameChange: (String) -> Unit){
+fun TextFields(studentId: String,
+               onStudentIdChange: (String) -> Unit,
+               studentName: String,
+               onStudentNameChange: (String) -> Unit,
+               courseName: String,
+               onStudentCourseNameChange: (String) -> Unit
+){
     OutlinedTextField(
         value = studentId,
         onValueChange = onStudentIdChange,
@@ -175,7 +217,10 @@ fun TextFields(studentId: String, onStudentIdChange: (String) -> Unit, studentNa
 }
 
 @Composable
-fun CustomButtons(loadButtonClicked: () -> Unit, storeButtonClicked: () -> Unit, resetButtonClicked: () -> Unit){
+fun CustomButtons(loadButtonClicked: () -> Unit,
+                  storeButtonClicked: () -> Unit,
+                  resetButtonClicked: () -> Unit
+){
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp) // Spacing between buttons
@@ -222,7 +267,10 @@ fun CustomButtons(loadButtonClicked: () -> Unit, storeButtonClicked: () -> Unit,
 }
 
 @Composable
-fun DisplayResult(){
+fun DisplayResult(studentId: String,
+                  userName: String,
+                  courseName: String
+){
     Box(
         modifier = Modifier.fillMaxWidth()
             .background(Color(216, 216, 255))
@@ -240,13 +288,13 @@ fun DisplayResult(){
         ) {
             // Text items
             Text(
-                text = "Student Id: ",
+                text = "Student Id: $studentId",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Text(
-                text = "Username: ",
+                text = "Username: $userName",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer

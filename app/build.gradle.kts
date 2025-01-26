@@ -56,4 +56,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation ("androidx.datastore:datastore-preferences-rxjava2:1.0.0")
+    implementation ("androidx.datastore:datastore-preferences-rxjava3:1.0.0")
 }
