@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Test();
+            Test() // Call the Test composable to display the UI
         }
     }
 }
@@ -57,41 +57,50 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun Test() {
+    // Get instances of FocusManager, Context, and DataStore
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val dataStore = DataStore(context)
+
+    // State variables for input fields
     var studentId by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var courseName by remember { mutableStateOf("") }
 
+    // State variables for stored data
     var storedStudentId by remember { mutableStateOf("") }
     var storedUserName by remember { mutableStateOf("") }
     var storedCourseName by remember { mutableStateOf("") }
 
+    // Function to handle Load button click
     fun loadButtonClicked() {
         kotlinx.coroutines.GlobalScope.launch {
             dataStore.getData().collect { data ->
+                // Update stored data state variables
                 storedStudentId = data.first
                 storedUserName = data.second
                 storedCourseName = data.third
             }
-            println(storedStudentId)
+            println(storedStudentId) // Print stored student ID for debugging
         }
     }
 
+    // Function to handle Store button click
     fun storeButtonClicked() {
-        // Save data to DataStore
-        if(studentId.isEmpty() || courseName.isEmpty() || userName.isEmpty()){
+        // Validate input fields
+        if (studentId.isEmpty() || courseName.isEmpty() || userName.isEmpty()) {
             return Toast.makeText(context, "All fields are required", Toast.LENGTH_SHORT).show()
         }
+        // Save data to DataStore
         kotlinx.coroutines.GlobalScope.launch {
             dataStore.saveData(studentId, userName, courseName)
         }
         Toast.makeText(context, "Data stored successfully!", Toast.LENGTH_SHORT).show()
     }
 
+    // Function to handle Reset button click
     fun resetButtonClicked() {
-        // Clear fields and reset DataStore
+        // Clear DataStore and reset state variables
         kotlinx.coroutines.GlobalScope.launch {
             dataStore.clearData()
             studentId = ""
@@ -104,26 +113,27 @@ fun Test() {
         Toast.makeText(context, "Data Reset successfully!", Toast.LENGTH_SHORT).show()
     }
 
+    // Scaffold to structure the UI with a TopAppBar and content
     Scaffold(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0, 0, 179)
+                    containerColor = Color(0, 0, 179) // Set top bar color
                 ),
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = {
                     Box(
                         modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                    ){
-                        Text("MAPD-721 | Assignment 1",
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "MAPD-721 | Assignment 1",
                             color = Color.White,
                             fontSize = 25.sp,
                             textAlign = TextAlign.Center,
                             fontFamily = FontFamily.SansSerif,
                             fontWeight = FontWeight.W400,
-                            )
+                        )
                     }
                 }
             )
@@ -134,53 +144,57 @@ fun Test() {
                     .fillMaxWidth()
                     .padding(innerPadding)
                     .pointerInput(Unit) {
-                        detectTapGestures { focusManager.clearFocus() }
+                        detectTapGestures { focusManager.clearFocus() } // Clear focus on tap outside
                     }
-                    .padding(16.dp), // Add some padding to the whole column for better spacing
+                    .padding(16.dp), // Add padding to the column
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // Header Text with improved styling
+                // Header Text
                 Text(
                     text = "Please Enter Your Details",
                     textAlign = TextAlign.Center,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0, 128, 255), // Purple color for title
+                    color = Color(0, 128, 255), // Set text color
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp), // Vertical padding for the header
+                        .padding(vertical = 16.dp), // Add vertical padding
                 )
 
-                // Input fields with better padding and rounded corners
+                // Input fields for student ID, username, and course name
                 TextFields(
                     studentId,
-                    onStudentIdChange = {studentId = it},
+                    onStudentIdChange = { studentId = it },
                     userName,
-                    onStudentNameChange = {userName = it},
+                    onStudentNameChange = { userName = it },
                     courseName,
-                    onStudentCourseNameChange = {courseName = it}
-                );
+                    onStudentCourseNameChange = { courseName = it }
+                )
 
-                // Action buttons with improved styling
-                CustomButtons(loadButtonClicked = { loadButtonClicked() },
-                    storeButtonClicked = {storeButtonClicked()},
-                    resetButtonClicked = {resetButtonClicked()}
-                );
+                // Buttons for Load, Store, and Reset actions
+                CustomButtons(
+                    loadButtonClicked = { loadButtonClicked() },
+                    storeButtonClicked = { storeButtonClicked() },
+                    resetButtonClicked = { resetButtonClicked() }
+                )
 
-                DisplayResult(storedStudentId, storedUserName, storedCourseName);
+                // Display stored results
+                DisplayResult(storedStudentId, storedUserName, storedCourseName)
             }
         }
     )
 }
 
 @Composable
-fun TextFields(studentId: String,
-               onStudentIdChange: (String) -> Unit,
-               studentName: String,
-               onStudentNameChange: (String) -> Unit,
-               courseName: String,
-               onStudentCourseNameChange: (String) -> Unit
-){
+fun TextFields(
+    studentId: String,
+    onStudentIdChange: (String) -> Unit,
+    studentName: String,
+    onStudentNameChange: (String) -> Unit,
+    courseName: String,
+    onStudentCourseNameChange: (String) -> Unit
+) {
+    // Text field for Student ID
     OutlinedTextField(
         value = studentId,
         onValueChange = onStudentIdChange,
@@ -193,6 +207,7 @@ fun TextFields(studentId: String,
 
     Spacer(modifier = Modifier.height(12.dp))
 
+    // Text field for Username
     OutlinedTextField(
         value = studentName,
         onValueChange = onStudentNameChange,
@@ -205,6 +220,7 @@ fun TextFields(studentId: String,
 
     Spacer(modifier = Modifier.height(12.dp))
 
+    // Text field for Course Name
     OutlinedTextField(
         value = courseName,
         onValueChange = onStudentCourseNameChange,
@@ -217,67 +233,75 @@ fun TextFields(studentId: String,
 }
 
 @Composable
-fun CustomButtons(loadButtonClicked: () -> Unit,
-                  storeButtonClicked: () -> Unit,
-                  resetButtonClicked: () -> Unit
-){
+fun CustomButtons(
+    loadButtonClicked: () -> Unit,
+    storeButtonClicked: () -> Unit,
+    resetButtonClicked: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp) // Spacing between buttons
     ) {
+        // Load button
         ElevatedButton(
             onClick = loadButtonClicked,
-            modifier = Modifier.weight(1f), // Make buttons fill available space evenly
+            modifier = Modifier.weight(1f), // Distribute space evenly
             shape = MaterialTheme.shapes.small, // Rounded corners
-            colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-                contentColor = Color.Black, // Set the text color here
-                containerColor = Color(255, 208, 0)
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.Black, // Text color
+                containerColor = Color(255, 208, 0) // Button color
             )
         ) {
             Text("Load", fontSize = 18.sp)
         }
+
+        // Store button
         ElevatedButton(
             onClick = storeButtonClicked,
             modifier = Modifier.weight(1f),
             shape = MaterialTheme.shapes.small,
-            colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-                contentColor = Color.White, // Set the text color here
-                containerColor = Color(6, 64, 43)
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White, // Text color
+                containerColor = Color(6, 64, 43) // Button color
             )
-
         ) {
             Text("Store", fontSize = 18.sp, color = Color.White)
         }
     }
 
     Spacer(modifier = Modifier.height(16.dp))
-    // Reset button with styling
+
+    // Reset button
     ElevatedButton(
         onClick = resetButtonClicked,
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
-        colors = ButtonDefaults.buttonColors( // Use buttonColors to change content color
-            contentColor = Color.White, // Set the text color here
-            containerColor = Color(190, 0, 0)
+        colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White, // Text color
+            containerColor = Color(190, 0, 0) // Button color
         )
     ) {
         Text("Reset", fontSize = 18.sp, color = Color.White)
     }
+
     Spacer(modifier = Modifier.height(26.dp))
 }
 
 @Composable
-fun DisplayResult(studentId: String,
-                  userName: String,
-                  courseName: String
-){
+fun DisplayResult(
+    studentId: String,
+    userName: String,
+    courseName: String
+) {
+    // Box to display stored results
     Box(
-        modifier = Modifier.fillMaxWidth()
-            .background(Color(216, 216, 255))
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(216, 216, 255)) // Background color
             .height(200.dp)
-            .clip(MaterialTheme.shapes.medium),
+            .clip(MaterialTheme.shapes.medium), // Rounded corners
         contentAlignment = Alignment.CenterStart,
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -286,13 +310,15 @@ fun DisplayResult(studentId: String,
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.Start
         ) {
-            // Text items
+            // Display Student ID
             Text(
                 text = "Student Id: $studentId",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
+
+            // Display Username
             Text(
                 text = "Username: $userName",
                 fontSize = 20.sp,

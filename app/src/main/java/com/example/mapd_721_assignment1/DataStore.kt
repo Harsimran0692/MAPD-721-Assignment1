@@ -14,7 +14,7 @@ class DataStore(private val context: Context) {
     private val USER_NAME_KEY = stringPreferencesKey("user_name")
     private val COURSE_NAME_KEY = stringPreferencesKey("course_name")
 
-    // Save data to DataStore
+    // Saving data to the DataStore
     suspend fun saveData(studentId: String, userName: String, courseName: String) {
         context.dataStore.edit { preferences ->
             preferences[STUDENT_ID_KEY] = studentId
@@ -23,7 +23,7 @@ class DataStore(private val context: Context) {
         }
     }
 
-    // Retrieve data from DataStore
+    // Retrieving data from the DataStore
     fun getData() = context.dataStore.data.map { preferences ->
         Triple(
             preferences[STUDENT_ID_KEY] ?: "",
@@ -32,6 +32,7 @@ class DataStore(private val context: Context) {
         )
     }
 
+    // Clearing the data from the DataStore
     suspend fun clearData() {
         context.dataStore.edit { it.clear() }
     }
